@@ -1,13 +1,16 @@
 from flask import Flask, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
-from models import db, Quote  # Import db and Quote from your models
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quotes.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
-db.init_app(app)  # Initialize the db instance with the app
+db = SQLAlchemy(app)
+
+# Define your models here
+
+
 
 # Define your routes here
 
@@ -24,4 +27,6 @@ def get_quotes():
 
 
 if __name__ == '__main__':
+    with app.app_context():  # Ensure you are in the application context
+        db.create_all()  # Create the database tables
     app.run(debug=True)

@@ -45,4 +45,16 @@ def seed_database():
         # Add new quotes to the database
         for quote_info in quotes_data:
             author_name = quote_info.pop('author')
-            author = Author.query.filter_by(name=author)
+            author = Author.query.filter_by(name=author_name).first()
+            if not author:
+                author = Author(name=author_name)
+                db.session.add(author)
+                db.session.commit()
+
+            quote = Quote(**quote_info, author=author)
+            db.session.add(quote)
+
+        db.session.commit()
+
+if __name__ == '__main__':
+    seed_database()

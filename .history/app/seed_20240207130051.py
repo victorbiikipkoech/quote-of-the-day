@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from app import app, db
-from models import Quote, Author  # Import Author model as well
+from models import Quote
 
 def seed_database():
     with app.app_context():
@@ -45,4 +45,14 @@ def seed_database():
         # Add new quotes to the database
         for quote_info in quotes_data:
             author_name = quote_info.pop('author')
-            author = Author.query.filter_by(name=author)
+            author = Author.query.filter_by(name=author_name).first()
+            if not author:
+                author = Author(name=author_name)
+                db.session.add(author)
+            quote = Quote(author=author, **quote_info)
+            db.session.add(quote)
+
+        db.session.commit()
+
+if __name__ == '__main__':
+    seed_database()

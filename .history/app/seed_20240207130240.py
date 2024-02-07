@@ -45,4 +45,4 @@ def seed_database():
         # Add new quotes to the database
         for quote_info in quotes_data:
             author_name = quote_info.pop('author')
-            author = Author.query.filter_by(name=author)
+            author = Author.query.filter_by(name=author
