@@ -5,16 +5,16 @@ import './HomePage.css'; // Import CSS file
 const HomePage = () => {
   const [quote, setQuote] = useState('');
   const [authors, setAuthors] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [newQuoteText, setNewQuoteText] = useState('');
-  const [newQuoteAuthorId, setNewQuoteAuthorId] = useState('');
+  const [searchingAuthors, setSearchingAuthors] = useState(false);
 
   useEffect(() => {
-    // Fetch quote on component mount
+    // Fetch initial data on component mount
     fetchQuote();
-    // Fetch authors on component mount
     fetchAuthors();
+    fetchCategories();
   }, []);
 
   const fetchQuote = async () => {
@@ -32,56 +32,44 @@ const HomePage = () => {
     try {
       const response = await fetch('/authors');
       const data = await response.json();
-      setAuthors(data);
+      if (Array.isArray(data)) {
+        setAuthors(data);
+      } else {
+        console.error('Invalid authors data:', data);
+      }
     } catch (error) {
       console.error('Error fetching authors:', error);
     }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/categories');
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const handleRandomizeClick = () => {
+    fetchQuote();
   };
 
   const handleSearchInputChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
-  const handleSearchButtonClick = async () => {
+  const handleSearchAuthorsClick = async () => {
+    setSearchingAuthors(true);
     try {
-      const response = await fetch(`/authors?name=${encodeURIComponent(searchQuery)}`);
+      const response = await fetch(`/authors/search?query=${encodeURIComponent(searchQuery)}`);
       const data = await response.json();
       setSearchResults(data);
     } catch (error) {
       console.error('Error searching authors:', error);
-    }
-  };
-
-  const handleNewQuoteTextChange = (event) => {
-    setNewQuoteText(event.target.value);
-  };
-
-  const handleNewQuoteAuthorChange = (event) => {
-    setNewQuoteAuthorId(event.target.value);
-  };
-
-  const handleAddQuoteSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      const response = await fetch('/quotes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: newQuoteText,
-          author_id: newQuoteAuthorId,
-        }),
-      });
-      if (response.ok) {
-        // Optionally display a success message or redirect the user
-        alert('Quote added successfully!');
-      } else {
-        // Handle error response
-        console.error('Failed to add quote:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error adding quote:', error);
+    } finally {
+      setSearchingAuthors(false);
     }
   };
 
@@ -90,53 +78,45 @@ const HomePage = () => {
       <h1>Welcome to Quote of the Day App</h1>
       <p>Here's your quote for today:</p>
       <blockquote className="quote">{quote}</blockquote>
+      <button onClick={handleRandomizeClick}>Randomize</button>
 
       <h2>Search Authors</h2>
-      <div className="author-search">
+      <div>
         <input
           type="text"
           value={searchQuery}
           onChange={handleSearchInputChange}
-          placeholder="Enter author name"
+          placeholder="Enter search query"
         />
-        <button onClick={handleSearchButtonClick}>Search</button>
+        <button onClick={handleSearchAuthorsClick} disabled={searchingAuthors}>
+          {searchingAuthors ? 'Searching...' : 'Search'}
+        </button>
       </div>
-      <ul className="authors-list">
+      <ul className="search-results">
         {searchResults.map(author => (
           <li key={author.id}>
-            <Link to={`/authors/${author.id}`}>{author.name}</Link>
+            <Link to={`/authors/${author.id}`}>{author.name}</Link> - {author.nationality}
           </li>
         ))}
       </ul>
 
-      <h2>Add Your Own Quote</h2>
-      <form onSubmit={handleAddQuoteSubmit} className="add-quote-form">
-        <div>
-          <label htmlFor="newQuoteText">Quote Text:</label>
-          <input
-            type="text"
-            id="newQuoteText"
-            value={newQuoteText}
-            onChange={handleNewQuoteTextChange}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="newQuoteAuthor">Author:</label>
-          <select
-            id="newQuoteAuthor"
-            value={newQuoteAuthorId}
-            onChange={handleNewQuoteAuthorChange}
-            required
-          >
-            <option value="">Select Author</option>
-            {authors.map(author => (
-              <option key={author.id} value={author.id}>{author.name}</option>
-            ))}
-          </select>
-        </div>
-        <button type="submit" className="add-quote-button">Add Quote</button>
-      </form>
+      <h2>Authors</h2>
+      <ul className="authors-list">
+        {authors.map(author => (
+          <li key={author.id}>
+            {author.name} - {author.nationality}
+          </li>
+        ))}
+      </ul>
+
+      <h2>Categories</h2>
+      <ul className="categories-list">
+        {categories.map(category => (
+          <li key={category.id}>
+            {category.name} - {category.description}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
