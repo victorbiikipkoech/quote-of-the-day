@@ -1,0 +1,56 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.quote {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.author-search {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.author-search input {
+  flex-grow: 1;
+  padding: 0.5rem;
+  margin-right: 1rem;
+}
+
+.author-search button {
+  padding: 0.5rem;
+}
+
+.authors-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.authors-list li {
+  margin-bottom: 0.5rem;
+}
+
+.add-quote-form {
+  margin-top: 2rem;
+}
+
+.add-quote-form div {
+  margin-bottom: 1rem;
+}
+
+.add-quote-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.add-quote-form select {
+  padding: 0.5rem;
+}
+
+.add-quote-button {
+  padding: 0.5rem;
+}
